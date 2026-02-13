@@ -3,7 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import Order from '../models/Order';
 import User from '../models/User';
 
-export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getDashboardStats = async (_req: AuthRequest, res: Response): Promise<void> => {
     try {
         const totalUsers = await User.countDocuments();
         const totalOrders = await Order.countDocuments();
@@ -33,7 +33,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     }
 };
 
-export const getAllOrders = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getAllOrders = async (_req: AuthRequest, res: Response): Promise<void> => {
     try {
         const orders = await Order.find().sort({ createdAt: -1 });
         res.json(orders);

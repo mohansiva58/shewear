@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { getRazorpayInstance, verifyRazorpaySignature } from '../config/razorpay';
-import { generateOrderId, calculateShipping } from '../utils/helpers';
+import { generateOrderId } from '../utils/helpers';
 
 export const createRazorpayOrder = async (req: AuthRequest, res: Response): Promise<void> => {
     try {

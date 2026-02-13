@@ -2,7 +2,6 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import Order from '../models/Order';
 import Cart from '../models/Cart';
-import User from '../models/User';
 import { generateOrderId, calculateShipping } from '../utils/helpers';
 import { sendOrderConfirmationEmail } from '../config/email';
 import { getRedisClient } from '../config/redis';

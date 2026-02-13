@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Product, { IProduct } from '../models/Product';
+import Product from '../models/Product';
 import { getRedisClient } from '../config/redis';
 import { uploadToCloudinary } from '../config/cloudinary';
 
@@ -217,7 +217,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     }
 };
 
-export const getFeaturedProducts = async (req: Request, res: Response): Promise<void> => {
+export const getFeaturedProducts = async (_req: Request, res: Response): Promise<void> => {
     try {
         const cacheKey = 'products:featured';
 

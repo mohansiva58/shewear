@@ -80,7 +80,7 @@ export const updateAddress = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
-        const address = user.addresses.id(addressId);
+        const address = user.addresses.find((addr: any) => addr._id?.toString() === addressId);
 
         if (!address) {
             res.status(404).json({ error: 'Address not found' });
@@ -90,7 +90,7 @@ export const updateAddress = async (req: AuthRequest, res: Response): Promise<vo
         Object.assign(address, updates);
 
         if (updates.isDefault) {
-            user.addresses.forEach((addr) => {
+            user.addresses.forEach((addr: any) => {
                 if (addr._id?.toString() !== addressId) {
                     addr.isDefault = false;
                 }
@@ -123,15 +123,15 @@ export const deleteAddress = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
-        const address = user.addresses.id(addressId);
+        const addressIndex = user.addresses.findIndex((addr: any) => addr._id?.toString() === addressId);
 
-        if (!address) {
+        if (addressIndex === -1) {
             res.status(404).json({ error: 'Address not found' });
             return;
         }
 
-        const wasDefault = address.isDefault;
-        user.addresses.pull(addressId);
+        const wasDefault = user.addresses[addressIndex].isDefault;
+        user.addresses.splice(addressIndex, 1);
 
         // If deleted address was default, make the first remaining address default
         if (wasDefault && user.addresses.length > 0) {
