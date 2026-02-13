@@ -1,0 +1,325 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* She Wear Collection - Feminine Luxury Theme */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+
+    /* Baby Pink / Blush Primary */
+    --primary: 350 80% 78%;
+    --primary-foreground: 0 0% 12%;
+
+    /* Soft Pink Secondary */
+    --secondary: 350 40% 96%;
+    --secondary-foreground: 0 0% 12%;
+
+    /* Muted Blush */
+    --muted: 350 20% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    /* Rose Gold Accent */
+    --accent: 35 60% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 350 20% 90%;
+    --input: 350 20% 90%;
+    --ring: 350 80% 78%;
+
+    --radius: 0.75rem;
+
+    /* Custom She Wear tokens */
+    --blush: 350 80% 85%;
+    --blush-light: 350 60% 95%;
+    --blush-dark: 350 70% 65%;
+    --gold: 35 60% 55%;
+    --gold-light: 35 50% 80%;
+    --charcoal: 0 0% 15%;
+    --cream: 40 30% 97%;
+
+    /* Gradients */
+    --gradient-blush: linear-gradient(135deg, hsl(350 80% 88%) 0%, hsl(350 70% 82%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(35 60% 65%) 0%, hsl(35 50% 50%) 100%);
+    --gradient-elegant: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(350 40% 98%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(350 40% 70% / 0.15);
+    --shadow-card: 0 8px 30px -8px hsl(350 40% 60% / 0.12);
+    --shadow-float: 0 20px 40px -12px hsl(350 40% 50% / 0.18);
+    --shadow-glow: 0 0 30px hsl(350 80% 78% / 0.3);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 350 70% 70%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 350 30% 15%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 350 20% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 35 50% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 350 20% 20%;
+    --input: 350 20% 20%;
+    --ring: 350 70% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  /* Elegant Button Styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-8 py-3 rounded-full font-medium 
+           transition-all duration-300 ease-out
+           hover:shadow-[var(--shadow-glow)] hover:scale-105
+           active:scale-95;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary-foreground bg-transparent px-8 py-3 rounded-full font-medium
+           transition-all duration-300 ease-out
+           hover:bg-primary hover:text-primary-foreground hover:shadow-[var(--shadow-soft)];
+  }
+
+  .btn-gold {
+    @apply px-8 py-3 rounded-full font-medium text-white
+           transition-all duration-300 ease-out
+           hover:scale-105 active:scale-95;
+    background: var(--gradient-gold);
+  }
+
+  /* Card Styles */
+  .card-elegant {
+    @apply bg-card rounded-2xl overflow-hidden
+           transition-all duration-500 ease-out;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-elegant:hover {
+    box-shadow: var(--shadow-float);
+    transform: translateY(-8px);
+  }
+
+  .card-product {
+    @apply bg-card rounded-xl overflow-hidden cursor-pointer
+           transition-all duration-400 ease-out;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-product:hover {
+    box-shadow: var(--shadow-float);
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  /* Section Backgrounds */
+  .bg-elegant {
+    background: var(--gradient-elegant);
+  }
+
+  .bg-blush-light {
+    @apply bg-secondary;
+  }
+
+  /* Text Styles */
+  .text-gradient-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Animation Classes */
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-float);
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 ease-out;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  /* Image hover zoom */
+  .img-zoom {
+    @apply overflow-hidden;
+  }
+
+  .img-zoom img {
+    @apply transition-transform duration-700 ease-out;
+  }
+
+  .img-zoom:hover img {
+    transform: scale(1.1);
+  }
+
+  /* Underline animation for links */
+  .link-underline {
+    @apply relative inline-block;
+  }
+
+  .link-underline::after {
+    content: '';
+    @apply absolute w-full h-0.5 bottom-0 left-0 origin-bottom-right
+           transition-transform duration-300 ease-out scale-x-0;
+    background: hsl(var(--primary));
+  }
+
+  .link-underline:hover::after {
+    @apply origin-bottom-left scale-x-100;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--secondary));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--blush-dark));
+  }
+}
+
+@layer utilities {
+  /* Stagger animations */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
