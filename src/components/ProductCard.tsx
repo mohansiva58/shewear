@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Heart, Eye, ShoppingBag } from 'lucide-react';
+import { Heart, Eye } from 'lucide-react';
 import { Product } from '@/lib/products';
 import { useWishlistStore } from '@/lib/wishlist';
 
@@ -16,21 +16,20 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const { addItem, removeItem, isInWishlist } = useWishlistStore();
 
-  const productId = (product as any).productId || product.id || (product as any)._id;
+  const productId =
+    (product as any).productId || product.id || (product as any)._id;
+
   const isWishlisted = isInWishlist(productId);
   const isNew = product.newArrival || product.isNew;
 
-
   const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to product detail
+    e.preventDefault();
     e.stopPropagation();
 
     if (isWishlisted) {
       removeItem(productId);
-      // toast.success('Removed from wishlist');
     } else {
       addItem(product);
-      // toast.success('Added to wishlist');
     }
   };
 
@@ -39,7 +38,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     setImageError(true);
   };
 
-  // Debug: log image URL
   if (!product.image) {
     console.warn('Product missing image URL:', product.name);
   }
@@ -49,96 +47,103 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
+      transition={{ delay: index * 0.08, duration: 0.4 }}
       className="group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="card-product">
         {/* Image Container */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-lg">
+        <div className="relative aspect-[4/4.5] overflow-hidden bg-secondary rounded-lg">
           <Link to={`/product/${productId}`}>
             {!imageError ? (
               <motion.img
                 src={product.image}
                 alt={product.name}
                 className="w-full h-full object-cover"
-                animate={{ scale: isHovered ? 1.08 : 1 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
+                animate={{ scale: isHovered ? 1.05 : 1 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
                 onError={handleImageError}
               />
             ) : (
               <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Image not available</p>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Image not available
+                </p>
               </div>
             )}
           </Link>
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
             {isNew && (
-              <span className="px-3 py-1 bg-foreground text-background text-xs font-medium rounded-full">
+              <span className="px-2 py-0.5 bg-foreground text-background text-[10px] font-medium rounded-full">
                 NEW
               </span>
             )}
             {product.isBestseller && (
-              <span className="px-3 py-1 bg-gold text-background text-xs font-medium rounded-full">
+              <span className="px-2 py-0.5 bg-gold text-background text-[10px] font-medium rounded-full">
                 BESTSELLER
               </span>
             )}
             {product.originalPrice && (
-              <span className="px-3 py-1 bg-destructive text-destructive-foreground text-xs font-medium rounded-full">
+              <span className="px-2 py-0.5 bg-destructive text-destructive-foreground text-[10px] font-medium rounded-full">
                 SALE
               </span>
             )}
           </div>
 
-          {/* Wishlist Button */}
-          {/* Wishlist Button Removed from top-right */}
-
           {/* Quick Actions */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 20 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-4 left-4 right-4 flex gap-2"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              y: isHovered ? 0 : 15,
+            }}
+            transition={{ duration: 0.25 }}
+            className="absolute bottom-3 left-3 right-3 flex gap-2"
           >
             <Link
               to={`/product/${productId}`}
-              className="flex-1 py-3 bg-background/95 backdrop-blur-sm text-foreground text-sm font-medium rounded-full flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg"
+              className="flex-1 py-2 bg-background/95 backdrop-blur-sm text-foreground text-xs font-medium rounded-full flex items-center justify-center gap-1 hover:bg-primary hover:text-primary-foreground transition-colors shadow-md"
             >
-              <Eye size={16} />
-              Quick View
+              <Eye size={14} />
+              View
             </Link>
+
             <motion.button
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleWishlistToggle}
-              className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg"
+              className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center transition-transform shadow-md"
             >
-              <Heart size={18} className={isWishlisted ? 'fill-current' : ''} />
+              <Heart
+                size={16}
+                className={isWishlisted ? 'fill-current' : ''}
+              />
             </motion.button>
           </motion.div>
         </div>
 
         {/* Product Info */}
-        <div className="p-3">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+        <div className="p-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
             {product.category}
           </p>
+
           <Link to={`/product/${productId}`}>
-            <h3 className="font-serif text-base font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
+            <h3 className="font-serif text-sm font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
               {product.name}
             </h3>
           </Link>
+
           <div className="flex items-center gap-2 mt-1">
-            <span className="font-semibold text-sm text-foreground">
+            <span className="font-semibold text-xs text-foreground">
               ₹{product.price.toLocaleString()}
             </span>
+
             {product.originalPrice && (
-              <span className="text-xs text-muted-foreground line-through">
+              <span className="text-[10px] text-muted-foreground line-through">
                 ₹{product.originalPrice.toLocaleString()}
               </span>
             )}
@@ -150,14 +155,17 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               {[...Array(5)].map((_, i) => (
                 <span
                   key={i}
-                  className={`text-xs ${i < Math.floor(product.rating) ? 'text-gold' : 'text-muted'
-                    }`}
+                  className={`text-[10px] ${
+                    i < Math.floor(product.rating)
+                      ? 'text-gold'
+                      : 'text-muted'
+                  }`}
                 >
                   ★
                 </span>
               ))}
             </div>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground">
               ({product.reviews})
             </span>
           </div>

@@ -12,14 +12,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   const [isZoomed, setIsZoomed] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 
-  // Debug: Log all images received
-  console.log(`ProductGallery loaded with ${images.length} images for "${productName}"`);
-  images.forEach((img, idx) => {
-    console.log(`  Image ${idx + 1}: ${img}`);
-  });
-
   const handleImageError = (index: number) => {
-    console.error('Image failed to load at index:', index, 'URL:', images[index]);
     setImageErrors(prev => new Set(prev).add(index));
   };
 
@@ -33,15 +26,15 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
 
   return (
     <>
-      <div className="space-y-4">
+      {/* 🔥 Width Reduced Here */}
+      <div className="max-w-md w-full space-y-2">
+        
         {/* Main Image */}
-        <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-secondary group">
+        <div className="relative aspect-[3/3.5] rounded-lg overflow-hidden bg-secondary group">
           <AnimatePresence mode="wait">
             {imageErrors.has(selectedIndex) ? (
               <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Image not available</p>
-                </div>
+                <p className="text-xs text-muted-foreground">Image not available</p>
               </div>
             ) : (
               <motion.img
@@ -52,58 +45,58 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
                 onClick={() => setIsZoomed(true)}
                 onError={() => handleImageError(selectedIndex)}
               />
             )}
           </AnimatePresence>
 
-          {/* Zoom Icon */}
+          {/* Smaller Zoom Button */}
           <button
             onClick={() => setIsZoomed(true)}
-            className="absolute bottom-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute bottom-2 right-2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <ZoomIn size={20} />
+            <ZoomIn size={16} />
           </button>
 
-          {/* Navigation Arrows */}
+          {/* Smaller Arrows */}
           {images.length > 1 && (
             <>
               <button
                 onClick={handlePrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={16} />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={16} />
               </button>
             </>
           )}
         </div>
 
-        {/* Thumbnail Gallery */}
+        {/* Smaller Thumbnails */}
         {images.length > 1 && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
+          <div className="flex gap-1 overflow-x-auto pb-1">
             {images.map((image, index) => (
               <motion.button
                 key={index}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedIndex(index)}
-                className={`flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border-2 transition-colors ${
+                className={`flex-shrink-0 w-14 h-16 rounded-md overflow-hidden border ${
                   selectedIndex === index
                     ? 'border-primary'
                     : 'border-transparent hover:border-primary/50'
                 }`}
               >
                 {imageErrors.has(index) ? (
-                  <div className="w-full h-full bg-secondary flex items-center justify-center text-xs">
-                    <span>N/A</span>
+                  <div className="w-full h-full bg-secondary flex items-center justify-center text-[9px]">
+                    N/A
                   </div>
                 ) : (
                   <img
@@ -119,54 +112,24 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         )}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox (unchanged size intentionally) */}
       <AnimatePresence>
         {isZoomed && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-3"
             onClick={() => setIsZoomed(false)}
           >
             <motion.img
-              initial={{ scale: 0.9 }}
+              initial={{ scale: 0.92 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
+              exit={{ scale: 0.92 }}
               src={images[selectedIndex]}
               alt={productName}
               className="max-w-full max-h-full object-contain cursor-zoom-out"
             />
-            
-            {images.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePrevious();
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-background rounded-full flex items-center justify-center shadow-lg"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNext();
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-background rounded-full flex items-center justify-center shadow-lg"
-                >
-                  <ChevronRight size={24} />
-                </button>
-              </>
-            )}
-            
-            <button
-              onClick={() => setIsZoomed(false)}
-              className="absolute top-4 right-4 text-foreground text-lg font-medium"
-            >
-              Close
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
