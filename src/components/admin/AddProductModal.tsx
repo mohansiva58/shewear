@@ -105,6 +105,23 @@ export function AddProductModal({ isOpen, onClose, onSuccess, product }: AddProd
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Validate required fields
+        if (!formData.name.trim()) {
+            toast.error('Product name is required');
+            return;
+        }
+        if (!formData.price || Number(formData.price) <= 0) {
+            toast.error('Valid price is required');
+            return;
+        }
+        if (!formData.category) {
+            toast.error('Category is required');
+            return;
+        }
+        if (!formData.description.trim()) {
+            toast.error('Product description is required');
+            return;
+        }
         if (!mainImage && !product) {
             toast.error('Please select a main image');
             return;
@@ -126,15 +143,26 @@ export function AddProductModal({ isOpen, onClose, onSuccess, product }: AddProd
                 data.append('images', file);
             });
 
+            // Log FormData contents
+            console.log('FormData being sent:');
+            for (const [key, value] of data.entries()) {
+                if (value instanceof File) {
+                    console.log(`  ${key}:`, value.name, `(${value.size} bytes)`);
+                } else {
+                    console.log(`  ${key}:`, value);
+                }
+            }
+
             if (product) {
                 await api.put(`/products/${product.productId}`, data, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 toast.success('Product updated successfully');
             } else {
-                await api.post('/products', data, {
+                const response = await api.post('/products', data, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
+                console.log('Product created:', response.data);
                 toast.success('Product created successfully');
             }
 
@@ -158,9 +186,20 @@ export function AddProductModal({ isOpen, onClose, onSuccess, product }: AddProd
             setAdditionalImages([]);
             setAdditionalImagePreviews([]);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Create product error:', error);
-            toast.error('Failed to create product');
+            console.error('Error response:', error.response?.data);
+            
+            if (error.response?.data?.details) {
+                const validationErrors = error.response.data.details.map((d: any) => 
+                    `${d.field}: ${d.message}`
+                ).join(', ');
+                toast.error(`Validation failed: ${validationErrors}`);
+            } else if (error.response?.data?.error) {
+                toast.error(error.response.data.error);
+            } else {
+                toast.error('Failed to create product');
+            }
         } finally {
             setLoading(false);
         }

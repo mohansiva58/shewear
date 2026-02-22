@@ -79,7 +79,8 @@ export default function AdminPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/products');
+      // Add cache-busting parameter to force fresh data
+      const response = await api.get(`/products?_=${Date.now()}`);
       setProducts(response.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);

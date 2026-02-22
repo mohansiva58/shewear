@@ -29,7 +29,16 @@ const ProductSchema: Schema = new Schema(
         image: { type: String, required: true },
         images: [{ type: String }],
         category: { type: String, required: true, index: true },
-        sizes: [{ type: String, required: true }],
+        sizes: { 
+            type: [String], 
+            required: true,
+            validate: {
+                validator: function(v: string[]) {
+                    return v && v.length > 0 && v.every((s: string) => s && s.trim().length > 0);
+                },
+                message: 'At least one valid size is required'
+            }
+        },
         description: { type: String, required: true },
         rating: { type: Number, default: 0, min: 0, max: 5 },
         reviews: { type: Number, default: 0, min: 0 },

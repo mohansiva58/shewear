@@ -14,6 +14,8 @@ export function FeaturedProducts() {
     const fetchFeatured = async () => {
       try {
         const products = await productService.getFeaturedProducts();
+        console.log('Featured products fetched:', products);
+        console.log('Featured products count:', products.length);
         setFeaturedProducts(products.slice(0, 4));
       } catch (error) {
         console.error('Failed to fetch featured products:', error);
@@ -31,7 +33,7 @@ export function FeaturedProducts() {
         <div className="container mx-auto px-4 text-center">
           <div className="flex justify-center gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="w-full h-80 bg-secondary/50 rounded-xl animate-pulse" />
+              <div key={i} className="w-full h-56 bg-secondary/50 rounded-xl animate-pulse" />
             ))}
           </div>
         </div>
@@ -61,7 +63,7 @@ export function FeaturedProducts() {
         </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {featuredProducts.length > 0 ? (
             featuredProducts.map((product, index) => (
               <ProductCard key={(product as any).productId || product.id || (product as any)._id} product={product} index={index} />

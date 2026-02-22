@@ -148,7 +148,7 @@ export default function ProductDetailPage() {
               className="relative"
             >
               <ProductGallery
-                images={product.images || [product.image]}
+                images={product.images && product.images.length > 0 ? product.images : [product.image]}
                 productName={product.name}
               />
 

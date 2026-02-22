@@ -10,6 +10,18 @@ interface ProductGalleryProps {
 export function ProductGallery({ images, productName }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+
+  // Debug: Log all images received
+  console.log(`ProductGallery loaded with ${images.length} images for "${productName}"`);
+  images.forEach((img, idx) => {
+    console.log(`  Image ${idx + 1}: ${img}`);
+  });
+
+  const handleImageError = (index: number) => {
+    console.error('Image failed to load at index:', index, 'URL:', images[index]);
+    setImageErrors(prev => new Set(prev).add(index));
+  };
 
   const handlePrevious = () => {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -25,17 +37,26 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         {/* Main Image */}
         <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-secondary group">
           <AnimatePresence mode="wait">
-            <motion.img
-              key={selectedIndex}
-              src={images[selectedIndex]}
-              alt={`${productName} - View ${selectedIndex + 1}`}
-              className="w-full h-full object-cover cursor-zoom-in"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={() => setIsZoomed(true)}
-            />
+            {imageErrors.has(selectedIndex) ? (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Image not available</p>
+                </div>
+              </div>
+            ) : (
+              <motion.img
+                key={selectedIndex}
+                src={images[selectedIndex]}
+                alt={`${productName} - View ${selectedIndex + 1}`}
+                className="w-full h-full object-cover cursor-zoom-in"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => setIsZoomed(true)}
+                onError={() => handleImageError(selectedIndex)}
+              />
+            )}
           </AnimatePresence>
 
           {/* Zoom Icon */}
@@ -80,11 +101,18 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                     : 'border-transparent hover:border-primary/50'
                 }`}
               >
-                <img
-                  src={image}
-                  alt={`${productName} thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                {imageErrors.has(index) ? (
+                  <div className="w-full h-full bg-secondary flex items-center justify-center text-xs">
+                    <span>N/A</span>
+                  </div>
+                ) : (
+                  <img
+                    src={image}
+                    alt={`${productName} thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={() => handleImageError(index)}
+                  />
+                )}
               </motion.button>
             ))}
           </div>

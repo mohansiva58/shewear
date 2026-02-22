@@ -12,6 +12,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const { addItem, removeItem, isInWishlist } = useWishlistStore();
 
@@ -33,6 +34,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     }
   };
 
+  const handleImageError = () => {
+    console.error('Image failed to load:', product.image);
+    setImageError(true);
+  };
+
+  // Debug: log image URL
+  if (!product.image) {
+    console.warn('Product missing image URL:', product.name);
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -45,15 +56,24 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       <div className="card-product">
         {/* Image Container */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
+        <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-lg">
           <Link to={`/product/${productId}`}>
-            <motion.img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              animate={{ scale: isHovered ? 1.08 : 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-            />
+            {!imageError ? (
+              <motion.img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover"
+                animate={{ scale: isHovered ? 1.08 : 1 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                onError={handleImageError}
+              />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Image not available</p>
+                </div>
+              </div>
+            )}
           </Link>
 
           {/* Badges */}
@@ -104,33 +124,33 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
         </div>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-3">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
             {product.category}
           </p>
           <Link to={`/product/${productId}`}>
-            <h3 className="font-serif text-lg font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
+            <h3 className="font-serif text-base font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
               {product.name}
             </h3>
           </Link>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="font-semibold text-foreground">
+          <div className="flex items-center gap-2 mt-1">
+            <span className="font-semibold text-sm text-foreground">
               ₹{product.price.toLocaleString()}
             </span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-xs text-muted-foreground line-through">
                 ₹{product.originalPrice.toLocaleString()}
               </span>
             )}
           </div>
 
           {/* Rating */}
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-1">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
                 <span
                   key={i}
-                  className={`text-sm ${i < Math.floor(product.rating) ? 'text-gold' : 'text-muted'
+                  className={`text-xs ${i < Math.floor(product.rating) ? 'text-gold' : 'text-muted'
                     }`}
                 >
                   ★

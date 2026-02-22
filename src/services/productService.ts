@@ -19,11 +19,19 @@ export const productService = {
         if (filters?.sort) params.append('sort', filters.sort);
 
         const response = await api.get(`/products?${params.toString()}`);
+        console.log('Fetched products:', response.data);
+        // Log image URLs for debugging
+        response.data.forEach((p: Product) => {
+            if (!p.image) {
+                console.warn('Product missing image:', p.name);
+            }
+        });
         return response.data;
     },
 
     getProductById: async (id: string): Promise<Product> => {
         const response = await api.get(`/products/${id}`);
+        console.log('Fetched product:', response.data);
         return response.data;
     },
 

@@ -7,28 +7,36 @@ const CACHE_TTL = 3600; // 1 hour
 
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
     try {
+        console.log('Creating product - Request body:', req.body);
         const productData = req.body;
         // Cast req to any to access files, or define a custom interface
         const files = (req as any).files as { [fieldname: string]: Express.Multer.File[] };
+        console.log('Files received:', files ? Object.keys(files) : 'none');
 
         // Handle main image upload
         if (files?.image?.[0]) {
             try {
+                console.log('Uploading main image to Cloudinary...');
                 const imageUrl = await uploadToCloudinary(files.image[0].buffer);
                 productData.image = imageUrl;
+                console.log('Main image uploaded:', imageUrl);
             } catch (uploadError) {
                 console.error('Image upload failed:', uploadError);
                 res.status(500).json({ error: 'Failed to upload main image' });
                 return;
             }
+        } else {
+            console.log('No main image file received');
         }
 
         // Handle additional images upload
         if (files?.images) {
             try {
+                console.log(`Uploading ${files.images.length} additional images to Cloudinary...`);
                 const uploadPromises = files.images.map((file: any) => uploadToCloudinary(file.buffer));
                 const imageUrls = await Promise.all(uploadPromises);
                 productData.images = imageUrls;
+                console.log('Additional images uploaded:', imageUrls);
             } catch (uploadError) {
                 console.error('Additional images upload failed:', uploadError);
                 // Continue with just main image or fail? fail for now to be safe
@@ -46,6 +54,25 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
             }
         }
 
+        console.log('Parsed sizes:', productData.sizes);
+
+        // Ensure sizes is an array and has at least one element
+        if (!Array.isArray(productData.sizes) || productData.sizes.length === 0) {
+            console.error('Invalid sizes data:', productData.sizes);
+            res.status(400).json({ error: 'Sizes must be a non-empty array' });
+            return;
+        }
+
+        // Filter out empty strings from sizes
+        productData.sizes = productData.sizes.filter((s: string) => s && s.trim().length > 0);
+
+        // Validate that we have at least one size after filtering
+        if (productData.sizes.length === 0) {
+            console.error('No valid sizes after filtering');
+            res.status(400).json({ error: 'At least one size is required' });
+            return;
+        }
+
         // Convert types
         productData.price = Number(productData.price);
         if (productData.originalPrice) productData.originalPrice = Number(productData.originalPrice);
@@ -56,19 +83,48 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 
         productData.isBestseller = productData.isBestseller === 'true' || productData.isBestseller === true;
 
+        // Validate required fields before database insertion
+        if (!productData.name || !productData.price || !productData.category || !productData.description) {
+            console.error('Missing required fields:', { 
+                name: !!productData.name, 
+                price: !!productData.price, 
+                category: !!productData.category, 
+                description: !!productData.description,
+                image: !!productData.image
+            });
+            res.status(400).json({ error: 'Missing required fields: name, price, category, description, and image are required' });
+            return;
+        }
+
+        if (!productData.image) {
+            console.error('No image URL - image upload may have failed');
+            res.status(400).json({ error: 'Product image is required' });
+            return;
+        }
+
         // Generate ID if not provided (simple random ID for now)
         if (!productData.productId) {
             productData.productId = 'PROD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         }
 
+        console.log('Product data before save:', {
+            ...productData,
+            image: productData.image ? 'URL_PROVIDED' : 'MISSING',
+            images: productData.images ? `${productData.images.length} images` : 'none'
+        });
+
         const newProduct = await Product.create(productData);
+        console.log('Product created successfully:', newProduct.productId);
 
         // Invalidate cache
         try {
             const redis = getRedisClient();
-            await redis.del('products:featured');
-            // We can't easily delete all product lists, but they have TTL so it's fine.
-            // A more advanced pattern would use scan/keys to delete all `products:*`
+            // Delete all product-related cache keys
+            const keys = await redis.keys('products:*');
+            if (keys.length > 0) {
+                await redis.del(...keys);
+                console.log(`Invalidated ${keys.length} product cache keys`);
+            }
         } catch (cacheError) {
             console.warn('Redis cache invalidation failed:', cacheError);
         }
@@ -76,7 +132,19 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         res.status(201).json(newProduct);
     } catch (error: any) {
         console.error('Create product error:', error);
-        res.status(500).json({ error: error.message || 'Failed to create product' });
+        console.error('Error stack:', error.stack);
+        if (error.name === 'ValidationError') {
+            console.error('Validation errors:', error.errors);
+            res.status(400).json({ 
+                error: 'Validation failed', 
+                details: Object.keys(error.errors).map(key => ({
+                    field: key,
+                    message: error.errors[key].message
+                }))
+            });
+        } else {
+            res.status(500).json({ error: error.message || 'Failed to create product' });
+        }
     }
 };
 
@@ -163,6 +231,14 @@ export const getAllProducts = async (req: Request, res: Response): Promise<void>
 
         const products = await Product.find(query).sort(sortOption);
 
+        // Log image URLs for debugging
+        console.log(`Retrieved ${products.length} products`);
+        products.forEach((p) => {
+            if (!p.image) {
+                console.warn('Product missing image:', p.name);
+            }
+        });
+
         // Cache the results
         try {
             const redis = getRedisClient();
@@ -202,6 +278,16 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
             return;
         }
 
+        // Debug: Log all product images
+        console.log(`getProductById - Product: ${product.name}`);
+        console.log(`  Total images: ${product.images ? product.images.length : 0}`);
+        if (product.images) {
+            product.images.forEach((img, idx) => {
+                console.log(`    Image ${idx + 1}: ${img}`);
+            });
+        }
+        console.log(`  Main image: ${product.image}`);
+
         // Cache the result
         try {
             const redis = getRedisClient();
@@ -232,11 +318,14 @@ export const getFeaturedProducts = async (_req: Request, res: Response): Promise
             console.warn('Redis cache miss:', cacheError);
         }
 
-        const products = await Product.find({
-            $or: [{ newArrival: true }, { isBestseller: true }],
-        })
-            .limit(6)
-            .sort({ rating: -1 });
+        const products = await Product.find({})
+            .limit(4)
+            .sort({ createdAt: -1 });
+
+        console.log('getFeaturedProducts - Found', products.length, 'products');
+        products.forEach(p => {
+            console.log('Product:', p.name, 'ID:', p.productId, 'Image:', p.image ? 'YES' : 'NO');
+        });
 
         try {
             const redis = getRedisClient();
@@ -322,8 +411,11 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
             // Cache invalidation
             try {
                 const redis = getRedisClient();
+                const keys = await redis.keys('products:*');
+                if (keys.length > 0) {
+                    await redis.del(...keys);
+                }
                 await redis.del(`product:${updatedProductById.productId}`);
-                await redis.del('products:featured');
             } catch (cacheError) {
                 console.warn('Redis cache invalidation failed');
             }
@@ -334,8 +426,11 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
         // Cache invalidation
         try {
             const redis = getRedisClient();
+            const keys = await redis.keys('products:*');
+            if (keys.length > 0) {
+                await redis.del(...keys);
+            }
             await redis.del(`product:${id}`);
-            await redis.del('products:featured');
         } catch (cacheError) {
             console.warn('Redis cache invalidation failed');
         }
@@ -363,8 +458,11 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
             // Cache invalidation
             try {
                 const redis = getRedisClient();
+                const keys = await redis.keys('products:*');
+                if (keys.length > 0) {
+                    await redis.del(...keys);
+                }
                 await redis.del(`product:${deletedById.productId}`);
-                await redis.del('products:featured');
             } catch (cacheError) {
                 console.warn('Redis cache invalidation failed');
             }
@@ -375,8 +473,11 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
         // Cache invalidation
         try {
             const redis = getRedisClient();
+            const keys = await redis.keys('products:*');
+            if (keys.length > 0) {
+                await redis.del(...keys);
+            }
             await redis.del(`product:${id}`);
-            await redis.del('products:featured');
         } catch (cacheError) {
             console.warn('Redis cache invalidation failed');
         }
