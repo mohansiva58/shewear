@@ -73,11 +73,11 @@ export default function AboutPage() {
 
                                 <div className="flex flex-wrap gap-12">
                                     <div>
-                                        <span className="text-4xl font-light text-black">15+</span>
+                                        <span className="text-4xl font-light text-black">1+</span>
                                         <p className="text-neutral-500 text-sm mt-1">Years of Excellence</p>
                                     </div>
                                     <div>
-                                        <span className="text-4xl font-light text-black">50K</span>
+                                        <span className="text-4xl font-light text-black">3K</span>
                                         <p className="text-neutral-500 text-sm mt-1">Happy Customers</p>
                                     </div>
                                     <div>

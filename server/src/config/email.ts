@@ -143,7 +143,7 @@ export const sendOrderConfirmationEmail = async (data: OrderEmailData): Promise<
               <p style="margin: 0; color: #856404;"><strong>⚠️ Important:</strong> Please note that all sales are final. We do not accept returns or exchanges.</p>
             </div>
 
-            <p style="font-size: 14px; color: #666; margin-top: 30px;">If you have any questions about your order, please contact us at ${process.env.EMAIL_USER}</p>
+            <p style="font-size: 14px; color: #666; margin-top: 30px;">If you have any questions about your order, please contact us at . support@shewear.com</p>
             
             <p style="font-size: 16px; margin-top: 30px;">Thank you for choosing She Wear Collection!</p>
             <p style="font-size: 14px; color: #666;">Best regards,<br>She Wear Collection Team</p>
