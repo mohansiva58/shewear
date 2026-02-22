@@ -12,8 +12,8 @@ import { upload } from '../middleware/upload';
 
 const router = express.Router();
 
-router.get('/', getAllProducts);
 router.get('/featured', getFeaturedProducts);
+router.get('/', getAllProducts);
 router.get('/:id', getProductById);
 
 // Admin routes

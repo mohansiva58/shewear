@@ -8,7 +8,10 @@ import {
     ChevronDown,
     ChevronUp,
     Search,
-    ExternalLink
+    ExternalLink,
+    Home,
+    ShoppingCart,
+    User
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -45,6 +48,13 @@ const statusSteps = {
     shipped: 3,
     delivered: 4,
     cancelled: 0,
+};
+
+const stepIcons = {
+    'Pending': Clock,
+    'Processing': Package,
+    'Shipped': Truck,
+    'Delivered': CheckCircle,
 };
 
 export default function OrdersPage() {
@@ -194,11 +204,12 @@ export default function OrdersPage() {
                                                             {['Pending', 'Processing', 'Shipped', 'Delivered'].map((step, index) => {
                                                                 const stepNum = index + 1;
                                                                 const isActive = statusSteps[order.orderStatus] >= stepNum;
+                                                                const StepIcon = stepIcons[step as keyof typeof stepIcons];
                                                                 return (
                                                                     <div key={step} className="relative z-10 flex flex-col items-center gap-2">
-                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${isActive ? 'bg-green-500 border-green-500 text-white' : 'bg-background border-gray-300 text-gray-400'
+                                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${isActive ? 'bg-green-500 border-green-500 text-white shadow-md' : 'bg-background border-gray-300 text-gray-400'
                                                                             }`}>
-                                                                            {isActive ? <CheckCircle size={14} /> : <div className="w-2 h-2 rounded-full bg-current" />}
+                                                                            <StepIcon size={18} />
                                                                         </div>
                                                                         <span className={`text-xs font-medium ${isActive ? 'text-green-600' : 'text-muted-foreground'}`}>
                                                                             {step}

@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-model.jpg';
+import { useState } from 'react';
 
 export function HeroSection() {
+  const [heroImageError, setHeroImageError] = useState(false);
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-background via-secondary to-blush-light">
       {/* Background Pattern */}
@@ -117,7 +119,16 @@ export function HeroSection() {
                   src={heroImage}
                   alt="She Wear Collection - Elegant Fashion"
                   className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
+                  onError={() => setHeroImageError(true)}
                 />
+                {heroImageError && (
+                  <div className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl bg-secondary flex items-center justify-center h-96">
+                    <div className="text-center text-muted-foreground">
+                      <AlertCircle className="mx-auto mb-2" />
+                      <p>Image not available</p>
+                    </div>
+                  </div>
+                )}
                 {/* Floating Elements */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}

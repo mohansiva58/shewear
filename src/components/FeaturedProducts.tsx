@@ -9,16 +9,28 @@ import { Product } from '@/lib/products';
 export function FeaturedProducts() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
+        console.log('Fetching featured products...');
         const products = await productService.getFeaturedProducts();
         console.log('Featured products fetched:', products);
         console.log('Featured products count:', products.length);
-        setFeaturedProducts(products.slice(0, 4));
+        
+        if (!Array.isArray(products) || products.length === 0) {
+          console.warn('No featured products found. Products:', products);
+          setError('No products available. Please upload products from the admin panel.');
+          setFeaturedProducts([]);
+        } else {
+          setFeaturedProducts(products.slice(0, 4));
+          setError(null);
+        }
       } catch (error) {
         console.error('Failed to fetch featured products:', error);
+        setError('Failed to load featured products. Please try again later.');
+        setFeaturedProducts([]);
       } finally {
         setLoading(false);
       }
@@ -64,7 +76,11 @@ export function FeaturedProducts() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-          {featuredProducts.length > 0 ? (
+          {error ? (
+            <div className="col-span-4 text-center text-destructive bg-destructive/10 p-4 rounded-lg">
+              {error}
+            </div>
+          ) : featuredProducts.length > 0 ? (
             featuredProducts.map((product, index) => (
               <ProductCard key={(product as any).productId || product.id || (product as any)._id} product={product} index={index} />
             ))
