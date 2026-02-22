@@ -122,7 +122,9 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
             // Delete all product-related cache keys
             const keys = await redis.keys('products:*');
             if (keys.length > 0) {
-                await redis.del(...keys);
+                for (const key of keys) {
+                    await redis.del(key);
+                }
                 console.log(`Invalidated ${keys.length} product cache keys`);
             }
         } catch (cacheError) {
@@ -413,7 +415,9 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
                 const redis = getRedisClient();
                 const keys = await redis.keys('products:*');
                 if (keys.length > 0) {
-                    await redis.del(...keys);
+                    for (const key of keys) {
+                        await redis.del(key);
+                    }
                 }
                 await redis.del(`product:${updatedProductById.productId}`);
             } catch (cacheError) {
@@ -428,7 +432,9 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
             const redis = getRedisClient();
             const keys = await redis.keys('products:*');
             if (keys.length > 0) {
-                await redis.del(...keys);
+                for (const key of keys) {
+                    await redis.del(key);
+                }
             }
             await redis.del(`product:${id}`);
         } catch (cacheError) {
@@ -460,7 +466,9 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
                 const redis = getRedisClient();
                 const keys = await redis.keys('products:*');
                 if (keys.length > 0) {
-                    await redis.del(...keys);
+                    for (const key of keys) {
+                        await redis.del(key);
+                    }
                 }
                 await redis.del(`product:${deletedById.productId}`);
             } catch (cacheError) {
@@ -475,7 +483,9 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
             const redis = getRedisClient();
             const keys = await redis.keys('products:*');
             if (keys.length > 0) {
-                await redis.del(...keys);
+                for (const key of keys) {
+                    await redis.del(key);
+                }
             }
             await redis.del(`product:${id}`);
         } catch (cacheError) {
