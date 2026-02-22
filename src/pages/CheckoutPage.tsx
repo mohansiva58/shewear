@@ -5,7 +5,7 @@ import { ChevronLeft, CreditCard, Check, AlertCircle, Plus, Pencil } from 'lucid
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { AuthModal } from '@/components/AuthModal';
-import { useCartStore } from '@/lib/cart';
+import { useCartStore, getProductId } from '@/lib/cart';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRazorpayCheckout } from '@/hooks/useRazorpayCheckout';
 import { orderService } from '@/services/orderService';
@@ -111,14 +111,24 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
-        items: items.map(item => ({
-          productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          image: item.product.image,
-          size: item.size,
-          quantity: item.quantity,
-        })),
+        items: items.map(item => {
+          const productId = getProductId(item.product);
+          console.log('Order Item - Product:', item.product.name, 'ProductId:', productId);
+          
+          if (!productId) {
+            console.error('Missing productId for product:', item.product);
+            throw new Error(`Product ${item.product.name} missing required ID`);
+          }
+
+          return {
+            productId,
+            name: item.product.name,
+            price: item.product.price,
+            image: item.product.image,
+            size: item.size,
+            quantity: item.quantity,
+          };
+        }),
         shippingAddress: formData,
         paymentMethod,
       };

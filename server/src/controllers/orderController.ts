@@ -25,6 +25,8 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
             razorpaySignature,
         } = req.body;
 
+        console.log('Creating order with items:', JSON.stringify(items, null, 2));
+
         // Validation
         if (!items || items.length === 0) {
             res.status(400).json({ error: 'Order items are required' });
