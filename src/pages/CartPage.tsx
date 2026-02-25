@@ -107,8 +107,8 @@ export default function CartPage() {
 
                         {/* Product Details */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
                               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                                 {item.product.category}
                               </p>
@@ -122,12 +122,14 @@ export default function CartPage() {
                               </p>
                             </div>
                             <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
+                              whileHover={{ scale: 1.05, backgroundColor: 'rgb(239, 68, 68)' }}
+                              whileTap={{ scale: 0.95 }}
                               onClick={() => removeItem(productId, item.size)}
-                              className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all duration-200 font-medium text-sm whitespace-nowrap flex-shrink-0"
+                              title="Remove from cart"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 size={16} />
+                              <span className="hidden sm:inline">Remove</span>
                             </motion.button>
                           </div>
 
