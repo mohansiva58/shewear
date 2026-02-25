@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-
+import aboutimage from '@/assets/image.png';
+import abt from '@/assets/abt2.jpeg';
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-background">
@@ -20,7 +21,7 @@ export default function AboutPage() {
                                 <div className="relative">
                                     <div className="aspect-[4/5] rounded-[60px] overflow-hidden">
                                         <img
-                                            src="https://thumbs.dreamstime.com/b/silhouette-elegant-woman-blowing-dress-art-fashion-studio-photo-beautiful-drawing-shadows-colors-light-color-85048306.jpg"
+                                            src={aboutimage}
                                             alt="Brand story"
                                             className="w-full h-full object-cover"
                                         />
@@ -35,7 +36,7 @@ export default function AboutPage() {
                                         className="absolute -bottom-8 -right-8 w-40 h-52 rounded-3xl overflow-hidden shadow-2xl border-4 border-white"
                                     >
                                         <img
-                                            src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=400&q=80"
+                                            src={abt}
                                             alt="Detail"
                                             className="w-full h-full object-cover"
                                         />
