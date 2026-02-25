@@ -21,7 +21,7 @@ export default function AboutPage() {
                                 <div className="relative">
                                     <div className="aspect-[4/5] rounded-[60px] overflow-hidden">
                                         <img
-                                            src={aboutimage}
+                                            src={abt}
                                             alt="Brand story"
                                             className="w-full h-full object-cover"
                                         />
@@ -36,7 +36,7 @@ export default function AboutPage() {
                                         className="absolute -bottom-8 -right-8 w-40 h-52 rounded-3xl overflow-hidden shadow-2xl border-4 border-white"
                                     >
                                         <img
-                                            src={abt}
+                                            src={aboutimage}
                                             alt="Detail"
                                             className="w-full h-full object-cover"
                                         />
