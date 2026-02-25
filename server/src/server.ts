@@ -128,6 +128,7 @@ function createApp(): Application {
     app.get('/health', (_req, res) => {
         res.json({
             status: 'OK',
+            version: '2.0.0',
             timestamp: new Date().toISOString(),
             uptime: process.uptime(),
             pid: process.pid,
