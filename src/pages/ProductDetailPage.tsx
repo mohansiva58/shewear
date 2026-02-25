@@ -102,8 +102,16 @@ export default function ProductDetailPage() {
       toast.error('Please select a size');
       return;
     }
-    addItem(product, selectedSize, quantity);
-    toast.success('Added to cart! ✨');
+    if (product?.stock !== undefined && product.stock <= 0) {
+      toast.error('This product is out of stock');
+      return;
+    }
+    const success = addItem(product!, selectedSize, quantity);
+    if (success) {
+      toast.success('Added to cart! ✨');
+    } else {
+      toast.error('Unable to add item to cart. Please check stock availability.');
+    }
   };
 
   const handleBuyNow = () => {
@@ -112,13 +120,22 @@ export default function ProductDetailPage() {
       return;
     }
 
+    if (product?.stock !== undefined && product.stock <= 0) {
+      toast.error('This product is out of stock');
+      return;
+    }
+
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
 
-    addItem(product, selectedSize, quantity);
-    navigate('/checkout');
+    const success = addItem(product!, selectedSize, quantity);
+    if (success) {
+      navigate('/checkout');
+    } else {
+      toast.error('Unable to process. Please check stock availability.');
+    }
   };
 
   return (
@@ -238,6 +255,20 @@ export default function ProductDetailPage() {
                     </>
                   )}
                 </div>
+
+                {/* Stock Status */}
+                {product.stock !== undefined && (
+                  <div className={`p-3 rounded-lg flex items-center gap-2 ${
+                    product.stock > 0
+                      ? 'bg-green-50/30 border border-green-200/30'
+                      : 'bg-destructive/10 border border-destructive/20'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-destructive'}`} />
+                    <span className={`text-sm font-medium ${product.stock > 0 ? 'text-green-700' : 'text-destructive'}`}>
+                      {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <p className="text-muted-foreground leading-relaxed">
@@ -290,22 +321,32 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
+              {/* Out of Stock Message */}
+              {product?.stock !== undefined && product.stock <= 0 && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4 flex items-center gap-3">
+                  <Ban className="text-destructive" size={20} />
+                  <p className="text-destructive font-medium">This product is currently out of stock</p>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex gap-4 pt-4">
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={product?.stock !== undefined && product.stock > 0 ? { scale: 1.02 } : {}}
+                  whileTap={product?.stock !== undefined && product.stock > 0 ? { scale: 0.98 } : {}}
                   onClick={handleAddToCart}
-                  className="flex-1 py-4 bg-secondary text-foreground rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors"
+                  disabled={product?.stock !== undefined && product.stock <= 0}
+                  className="flex-1 py-4 bg-secondary text-foreground rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingBag size={20} />
                   Add to Cart
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={product?.stock !== undefined && product.stock > 0 ? { scale: 1.02 } : {}}
+                  whileTap={product?.stock !== undefined && product.stock > 0 ? { scale: 0.98 } : {}}
                   onClick={handleBuyNow}
-                  className="flex-1 btn-primary font-semibold"
+                  disabled={product?.stock !== undefined && product.stock <= 0}
+                  className="flex-1 btn-primary font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Buy Now
                 </motion.button>

@@ -9,9 +9,9 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  addItem: (product: Product, size: string, quantity?: number) => void;
+  addItem: (product: Product, size: string, quantity?: number) => boolean;
   removeItem: (productId: string, size: string) => void;
-  updateQuantity: (productId: string, size: string, quantity: number) => void;
+  updateQuantity: (productId: string, size: string, quantity: number) => boolean;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -25,17 +25,31 @@ export const useCartStore = create<CartStore>((set, get) => ({
   items: [],
 
   addItem: (product, size, quantity = 1) => {
+    // Check if product has stock
+    if (product.stock !== undefined && product.stock <= 0) {
+      return false;
+    }
+
     set((state) => {
       const productId = getProductId(product);
       const existingItem = state.items.find(
         (item) => getProductId(item.product) === productId && item.size === size
       );
 
+      const totalQuantity = existingItem 
+        ? existingItem.quantity + quantity 
+        : quantity;
+
+      // Check if quantity exceeds stock
+      if (product.stock !== undefined && totalQuantity > product.stock) {
+        return state;
+      }
+
       if (existingItem) {
         return {
           items: state.items.map((item) =>
             getProductId(item.product) === productId && item.size === size
-              ? { ...item, quantity: item.quantity + quantity }
+              ? { ...item, quantity: totalQuantity }
               : item
           ),
         };
@@ -45,6 +59,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
         items: [...state.items, { product, size, quantity }],
       };
     });
+    return true;
   },
 
   removeItem: (productId, size) => {
@@ -56,6 +71,18 @@ export const useCartStore = create<CartStore>((set, get) => ({
   },
 
   updateQuantity: (productId, size, quantity) => {
+    const state = get();
+    const item = state.items.find(
+      (item) => getProductId(item.product) === productId && item.size === size
+    );
+
+    if (!item) return false;
+
+    // Check if new quantity exceeds stock
+    if (item.product.stock !== undefined && quantity > item.product.stock) {
+      return false;
+    }
+
     set((state) => ({
       items: state.items.map((item) =>
         getProductId(item.product) === productId && item.size === size
@@ -63,6 +90,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
           : item
       ),
     }));
+    return true;
   },
 
   clearCart: () => set({ items: [] }),

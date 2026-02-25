@@ -21,6 +21,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
   const isWishlisted = isInWishlist(productId);
   const isNew = product.newArrival || product.isNew;
+  const isOutOfStock = product.stock !== undefined && product.stock <= 0;
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -76,6 +77,11 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {isOutOfStock && (
+              <span className="px-3 py-1 bg-destructive text-destructive-foreground text-[11px] font-bold rounded-full">
+                OUT OF STOCK
+              </span>
+            )}
             {isNew && (
               <span className="px-2 py-0.5 bg-foreground text-background text-[10px] font-medium rounded-full">
                 NEW
@@ -92,13 +98,20 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               </span>
             )}
           </div>
+          
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+              <p className="text-white font-bold text-lg">Out of Stock</p>
+            </div>
+          )}
 
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{
-              opacity: isHovered ? 1 : 0,
-              y: isHovered ? 0 : 15,
+              opacity: isHovered && !isOutOfStock ? 1 : 0,
+              y: isHovered && !isOutOfStock ? 0 : 15,
             }}
             transition={{ duration: 0.25 }}
             className="absolute bottom-3 left-3 right-3 flex gap-2"

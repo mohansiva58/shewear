@@ -65,10 +65,24 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
-        // Verify product exists
+        // Verify product exists and check stock
         const product = await Product.findOne({ productId });
         if (!product) {
             res.status(404).json({ error: 'Product not found' });
+            return;
+        }
+
+        // Check if product is in stock
+        if (product.stock <= 0) {
+            res.status(400).json({ error: 'This product is out of stock' });
+            return;
+        }
+
+        // Check if requested quantity is available
+        if (quantity > product.stock) {
+            res.status(400).json({ 
+                error: `Only ${product.stock} item(s) available in stock` 
+            });
             return;
         }
 
@@ -82,6 +96,18 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<void> 
         const existingItemIndex = cart.items.findIndex(
             (item) => item.productId === productId && item.size === size
         );
+
+        const totalQuantity = existingItemIndex > -1 
+            ? cart.items[existingItemIndex].quantity + quantity 
+            : quantity;
+
+        // Check total quantity against stock
+        if (totalQuantity > product.stock) {
+            res.status(400).json({ 
+                error: `Only ${product.stock} total item(s) available in stock. You already have ${existingItemIndex > -1 ? cart.items[existingItemIndex].quantity : 0} in your cart.` 
+            });
+            return;
+        }
 
         if (existingItemIndex > -1) {
             // Update quantity
@@ -132,6 +158,25 @@ export const updateCartItem = async (req: AuthRequest, res: Response): Promise<v
 
         if (quantity < 1) {
             res.status(400).json({ error: 'Quantity must be at least 1' });
+            return;
+        }
+
+        // Check product stock
+        const product = await Product.findOne({ productId });
+        if (!product) {
+            res.status(404).json({ error: 'Product not found' });
+            return;
+        }
+
+        if (product.stock <= 0) {
+            res.status(400).json({ error: 'This product is out of stock' });
+            return;
+        }
+
+        if (quantity > product.stock) {
+            res.status(400).json({ 
+                error: `Only ${product.stock} item(s) available in stock` 
+            });
             return;
         }
 
