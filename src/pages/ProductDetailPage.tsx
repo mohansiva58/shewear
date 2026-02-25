@@ -12,6 +12,7 @@ import { Product } from '@/lib/products';
 import { useCartStore } from '@/lib/cart';
 import { useAuth } from '@/contexts/AuthContext';
 import { productService } from '@/services/productService';
+import { saleService } from '@/services/saleService';
 import { useWishlistStore } from '@/lib/wishlist';
 
 export default function ProductDetailPage() {
@@ -35,11 +36,37 @@ export default function ProductDetailPage() {
       if (!id) return;
       setLoading(true);
       try {
-        const data = await productService.getProductById(id);
+        let data: Product | null = null;
+        
+        // Try to fetch as a regular product first
+        try {
+          data = await productService.getProductById(id);
+        } catch (productError: any) {
+          // If product fetch fails with 404, try to fetch as a sale item
+          if (productError?.response?.status === 404) {
+            console.log('Product not found, checking if it\'s a sale item...');
+            try {
+              const saleData = await saleService.getSaleById(id);
+              // Convert sale to product format
+              data = {
+                ...saleData,
+                productId: (saleData as any).saleId || (saleData as any)._id,
+                id: (saleData as any)._id,
+              } as Product;
+            } catch (saleError) {
+              console.error('Failed to fetch as sale item:', saleError);
+              throw productError; // Throw original product error
+            }
+          } else {
+            throw productError;
+          }
+        }
+
+        if (!data) return;
+        
         setProduct(data);
 
         // Fetch related products based on category
-        // Fetch related products
         try {
           // Fetch all products to ensure we have enough suggestions
           const allProducts = await productService.getAllProducts();
