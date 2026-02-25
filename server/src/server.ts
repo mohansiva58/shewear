@@ -23,6 +23,7 @@ import orderRoutes from './routes/orders';
 import paymentRoutes from './routes/payment';
 import userRoutes from './routes/users';
 import adminRoutes from './routes/admin';
+import salesRoutes from './routes/sales';
 
 // Import middleware
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
@@ -112,6 +113,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/sales', salesRoutes);
 
 // Error handling
 app.use(notFoundHandler);
