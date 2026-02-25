@@ -4,7 +4,7 @@ import Order from '../models/Order';
 import Cart from '../models/Cart';
 import { generateOrderId, calculateShipping } from '../utils/helpers';
 import { sendOrderConfirmationEmail } from '../config/email';
-import { getRedisClient } from '../config/redis';
+import { cacheDel } from '../utils/cache';
 
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -79,10 +79,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
         // Clear cart after successful order
         try {
             await Cart.findOneAndUpdate({ userId }, { items: [] });
-
-            // Clear Redis cache
-            const redis = getRedisClient();
-            await redis.del(`cart:${userId}`);
+            await cacheDel(`cart:${userId}`);
         } catch (cartError) {
             console.warn('Failed to clear cart:', cartError);
         }

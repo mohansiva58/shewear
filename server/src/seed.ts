@@ -194,9 +194,13 @@ const seedProducts = async () => {
             console.log('🔄 Connecting to Redis...');
             await connectRedis();
             const redis = getRedisClient();
-            console.log('🗑️  Clearing Redis cache...');
-            await redis.flushAll();
-            console.log('✅ Cleared Redis cache\n');
+            if (redis) {
+                console.log('🗑️  Clearing Redis cache...');
+                await redis.flushAll();
+                console.log('✅ Cleared Redis cache\n');
+            } else {
+                console.warn('⚠️  Redis not available, skipping cache clear');
+            }
             await disconnectRedis();
         } catch (redisError: any) {
             console.warn('⚠️  Redis cache clearing failed (optional):', redisError.message);
